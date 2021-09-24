@@ -1,0 +1,88 @@
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Scanner;
+
+public class App_1 {
+    public static void main(String[] args) throws IOException {
+        //clientes.txt
+        String[] Nombres = new String[100];
+        String[] Apellidos = new String[100];
+        String[] Ruts = new String[100];
+        String[] Claves = new String[100];
+        double[] Saldos = new double[100];
+        //status.txt
+        String[] Ruts1 = new String[100];
+        String[] Estado = new String[100];
+        //Listas y matriz peliculas.txt
+        String[] Nombres_peli = new String[100];
+        String[] Tipos = new String[100];
+        double[] Recaudaciones = new double[100];
+        
+        String[][] salas = new String[2][3];
+        
+        int cantClientes = leerClientes(Nombres, Apellidos, Ruts, Claves, Saldos);
+        int cantStatus = LeerStatus(Ruts1, Estado);
+        int cantPeliculas = LeerPeliculas(Nombres_peli, Tipos, Recaudaciones);
+    }
+    private static int LeerPeliculas(String[] Nombres_peli, String[] Tipos, double[] Recaudaciones) throws IOException {
+        BufferedReader arch = new BufferedReader(new FileReader("peliculas.txt"));
+        String linea;
+        int cant=0;
+        while((linea = arch.readLine()) != null) {
+            String[] parte = linea.split(",");
+            String N_peli = parte[0];
+            String tipo = parte[1];
+            double Recaudacion = Double.valueOf(parte[2]);
+            
+            Nombres_peli[cant] = N_peli;
+            Tipos[cant] = tipo;
+            Recaudaciones[cant] = Recaudacion;
+            //System.out.println(Recaudaciones[cant]);
+            cant++;
+            
+        }
+        return cant;
+    }
+    public static int LeerStatus(String[] Ruts1, String[] Estado) throws IOException {
+        BufferedReader arch = new BufferedReader(new FileReader("status.txt"));
+        String linea;
+        int cant=0;
+        while((linea = arch.readLine()) != null) {
+            String[] parte = linea.split(",");
+            String rut = parte[0];
+            String estado = parte[1];
+            
+            Ruts1[cant] = rut;
+            Estado[cant] = estado;
+            //System.out.println(Estado[cant]);
+            cant++;
+        }
+        return cant;
+    }
+    public static Scanner scan = new Scanner(System.in);
+    
+    public static int leerClientes(String[] Nombres, String[] Apellidos, String[] Ruts, String[] Claves, double[] Saldos) throws IOException{
+        BufferedReader arch =new BufferedReader(new FileReader("clientes.txt"));
+        String linea;
+        int cant=0;
+        while((linea = arch.readLine()) != null) {
+            String[] parte = linea.split(",");
+            String nombre = parte[0];
+            String apellido = parte[1];
+            String rut = parte[2];
+            String clave = parte[3];
+            double saldo = Double.valueOf(parte[4]);
+            
+            Nombres[cant] = nombre;
+            Apellidos[cant] = apellido;
+            Ruts[cant] = rut;
+            Claves[cant] = clave;
+            Saldos[cant] = saldo;
+            //System.out.println(Nombres[cant]);
+            cant++;    
+        }
+        return cant;
+    }
+}
