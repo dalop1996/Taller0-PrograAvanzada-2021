@@ -7,82 +7,207 @@ import java.util.Scanner;
 public class App_1 {
     public static void main(String[] args) throws IOException {
         //clientes.txt
-        String[] Nombres = new String[100];
-        String[] Apellidos = new String[100];
-        String[] Ruts = new String[100];
-        String[] Claves = new String[100];
-        double[] Saldos = new double[100];
-        //status.txt
-        String[] Ruts1 = new String[100];
-        String[] Estado = new String[100];
-        //Listas y matriz peliculas.txt
-        String[] Nombres_peli = new String[100];
-        String[] Tipos = new String[100];
-        double[] Recaudaciones = new double[100];
+		String[] Nombres = new String[100];
+		String[] Apellidos = new String[100];
+		String[] Ruts = new String[100];
+		String[] Claves = new String[100];
+		double[] Saldos = new double[100];
+		//status.txt
+		String[] Ruts1 = new String[100];
+		String[] Estado = new String[100];
+		//Listas y matriz peliculas.txt
+		String[] Nombres_peli = new String[100];
+		String[] Tipos = new String[100];
+		double[] Recaudaciones = new double[100];
+		
+		String[][] salas = new String[3][4];
+		
+		for(int i=0; i<4;i++) {
+			salas[0][i] = i+"\t";
+		}
+		salas[1][0]= "M\t";
+		salas[2][0]="T\t";
+
+		
+		int cantClientes = leerClientes(Nombres, Apellidos, Ruts, Claves, Saldos);
+		int cantStatus = LeerStatus(Ruts1, Estado);
+		int cantPeliculas = LeerPeliculas(Nombres_peli, Tipos, Recaudaciones, salas);
+		
+		 //Matrices salas de cine (mañana y tarde), filas A-D 20 asientos (1-5 y 26-30 sin asientos), filas E-J 30 asientos
+        String [][] Sala1M = new String [11][31];
+        String [][] Sala1T = new String [11][31];
+        String [][] Sala2M = new String [11][31];
+        String [][] Sala2T = new String [11][31];
+        String [][] Sala3M = new String [11][31];
+        String [][] Sala3T = new String [11][31];
         
-        String[][] salas = new String[2][3];
+        rellenarMatriz(Sala1M);
+        rellenarMatriz(Sala1T);
+        rellenarMatriz(Sala2M);
+        rellenarMatriz(Sala2T);
+        rellenarMatriz(Sala3M);
+        rellenarMatriz(Sala3T);
         
-        int cantClientes = leerClientes(Nombres, Apellidos, Ruts, Claves, Saldos);
-        int cantStatus = LeerStatus(Ruts1, Estado);
-        int cantPeliculas = LeerPeliculas(Nombres_peli, Tipos, Recaudaciones);
-    }
-    private static int LeerPeliculas(String[] Nombres_peli, String[] Tipos, double[] Recaudaciones) throws IOException {
-        BufferedReader arch = new BufferedReader(new FileReader("peliculas.txt"));
-        String linea;
-        int cant=0;
-        while((linea = arch.readLine()) != null) {
-            String[] parte = linea.split(",");
-            String N_peli = parte[0];
-            String tipo = parte[1];
-            double Recaudacion = Double.valueOf(parte[2]);
-            
-            Nombres_peli[cant] = N_peli;
-            Tipos[cant] = tipo;
-            Recaudaciones[cant] = Recaudacion;
-            //System.out.println(Recaudaciones[cant]);
-            cant++;
-            
+        //Comienzo de datos
+        String res="";
+        while(!res.equals("3")) {
+        	System.out.println("Bienvenidos al Cine de Cuevana");
+        	System.out.print("Ingrese su Rut: ");
+        	String rut = scan.next();
+        	System.out.print("Ingrese su Contraseña: ");
+        	String clave = scan.next();
+        	
+        	
+        	if(rut.equals("ADMIN") && clave.equals("ADMIN")) {
+        		//ModoAdmin
+        		break;
+        	}else {
+        		rut = convertirRut(rut);
+        		if(verificarCliente(rut, cantClientes, Ruts, clave, Claves) == true){
+        			
+        			res = MenuUsuario(Nombres, Apellidos Ruts, Claves, Saldos, Ruts1, Estado);
+        			break;
+        		}else {
+        			System.out.print("No se encontro el rut o la contraseña era incorrecta. \nDesea volver a intentarlo (1), Registrarse (2) o Cerrar(3): ");
+        			res = scan.next();
+        			if(res.equals("1")) {
+        				res="1";
+        			}else if(res.equals("2")){
+        				//registrarse
+        				break;
+        			}else if(res.equals("3")){
+        				res="3";
+        				//cerrar sistema
+        			}else {
+        				System.out.print("Se ingreso un rato erroneo");
+        			}
+        		}
+        	}
         }
-        return cant;
-    }
-    public static int LeerStatus(String[] Ruts1, String[] Estado) throws IOException {
-        BufferedReader arch = new BufferedReader(new FileReader("status.txt"));
-        String linea;
-        int cant=0;
-        while((linea = arch.readLine()) != null) {
-            String[] parte = linea.split(",");
-            String rut = parte[0];
-            String estado = parte[1];
-            
-            Ruts1[cant] = rut;
-            Estado[cant] = estado;
-            //System.out.println(Estado[cant]);
-            cant++;
-        }
-        return cant;
-    }
-    public static Scanner scan = new Scanner(System.in);
-    
-    public static int leerClientes(String[] Nombres, String[] Apellidos, String[] Ruts, String[] Claves, double[] Saldos) throws IOException{
-        BufferedReader arch =new BufferedReader(new FileReader("clientes.txt"));
-        String linea;
-        int cant=0;
-        while((linea = arch.readLine()) != null) {
-            String[] parte = linea.split(",");
-            String nombre = parte[0];
-            String apellido = parte[1];
-            String rut = parte[2];
-            String clave = parte[3];
-            double saldo = Double.valueOf(parte[4]);
-            
-            Nombres[cant] = nombre;
-            Apellidos[cant] = apellido;
-            Ruts[cant] = rut;
-            Claves[cant] = clave;
-            Saldos[cant] = saldo;
-            //System.out.println(Nombres[cant]);
-            cant++;    
-        }
-        return cant;
+	}
+	private static boolean verificarCliente(String rut, int cantClientes, String[] Ruts, String clave, String[] Claves) {
+		for(int i=0; i<cantClientes; i++) {
+			if(Ruts[i].equals(rut) && Claves[i].equals(clave)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+
+	private static String convertirRut(String rut) {
+		rut=rut.toUpperCase();
+		rut=rut.replace(".","");
+		rut=rut.replace("-","");
+		return rut;
+		
+	}
+	private static void rellenarMatriz(String[][] sala) {
+		for(int i =0; i<31;i++) {
+			sala[0][i] = +i+"\t";
+		}
+		sala[1][0] = "A\t";
+		sala[2][0] = "B\t";
+		sala[3][0] = "C\t";
+		sala[4][0] = "D\t";
+		sala[5][0] = "E\t";
+		sala[6][0] = "F\t";
+		sala[7][0] = "G\t";
+		sala[8][0] = "H\t";
+		sala[9][0] = "I\t";
+		sala[10][0] = "J\t";
+		
+		for(int i=1;i<11;i++) {
+			for(int j=1; j<31;j++) {
+				
+				if(i<5 && j< 6 || i<5 && j>25 && j<31) {
+					sala[i][j] = "-\t";
+				}else {
+					sala[i][j] = "O\t";
+					}
+				}
+			}
+		
+		}
+	private static void imprimirMatriz(String[][] sala, int largo, int ancho) {
+		String texto = "";
+		for(int i=0; i<largo;i++) {
+			for(int j=0; j<ancho;j++) {
+				texto += sala[i][j] +" "; 
+			}
+			System.out.println(texto);
+			texto="";
+		}
+		System.out.println(" ");
+	}
+	private static int LeerPeliculas(String[] Nombres_peli, String[] Tipos, double[] Recaudaciones, String[][] salas) throws IOException {
+		BufferedReader arch = new BufferedReader(new FileReader("peliculas.txt"));
+		String linea;
+		int cant=0;
+		while((linea = arch.readLine()) != null) {
+			String[] parte = linea.split(",");
+			String N_peli = parte[0];
+			String tipo = parte[1];
+			double Recaudacion = Double.valueOf(parte[2]);
+			
+			Nombres_peli[cant] = N_peli;
+			Tipos[cant] = tipo;
+			Recaudaciones[cant] = Recaudacion;
+			if(N_peli.equals("Rapidos y Furiosos")) {
+				salas[1][2] = N_peli+"\t";
+				salas[2][1] = N_peli+"\t";
+				salas[2][2] = N_peli+"\t";
+			}else if(N_peli.equals("El conjuro 3")){
+				   salas[1][1] = N_peli+"\t";
+			}else {
+				salas[2][3] = N_peli+"\t";
+				salas[1][3] = N_peli+"\t";
+			}
+			cant++;
+			
+		}
+		return cant;
+	}
+	public static int LeerStatus(String[] Ruts1, String[] Estado) throws IOException {
+		BufferedReader arch = new BufferedReader(new FileReader("status.txt"));
+		String linea;
+		int cant=0;
+		while((linea = arch.readLine()) != null) {
+			String[] parte = linea.split(",");
+			String rut = parte[0];
+			rut = convertirRut(rut);
+			String estado = parte[1];
+			
+			Ruts1[cant] = rut;
+			Estado[cant] = estado;
+			//System.out.println(Estado[cant]);
+			cant++;
+		}
+		return cant;
+	}
+	public static Scanner scan = new Scanner(System.in);
+	
+	public static int leerClientes(String[] Nombres, String[] Apellidos, String[] Ruts, String[] Claves, double[] Saldos) throws IOException{
+		BufferedReader arch =new BufferedReader(new FileReader("clientes.txt"));
+		String linea;
+		int cant=0;
+		while((linea = arch.readLine()) != null) {
+			String[] parte = linea.split(",");
+			String nombre = parte[0];
+			String apellido = parte[1];
+			String rut = parte[2];
+			String clave = parte[3];
+			double saldo = Double.valueOf(parte[4]);
+			rut=convertirRut(rut);
+			
+			Nombres[cant] = nombre;
+			Apellidos[cant] = apellido;
+			Ruts[cant] = rut;
+			Claves[cant] = clave;
+			Saldos[cant] = saldo;
+			//System.out.println(Nombres[cant]);
+			cant++;	
+		}
+		return cant;
     }
 }
