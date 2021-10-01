@@ -1,7 +1,27 @@
 import java.util.*;
 import java.io.*;
+/**
+ * 
+ * @author Diego López
+ * @author Joshir Contreras
+ *
+ */
 public class App {
-
+	/**
+	 * 
+	 * @param args
+	 * @throws IOException
+	 * Main function of the program, has the containers and the variables for the functions.
+	 * Has the following functions:
+	 * -leerClientes
+	 * -leerStatus
+	 * -leerPeliculas
+	 * -RellenarMatriz
+	 * -MenuAdmin
+	 * -MenuUsuario
+	 * -Registrarse
+	 * -CerrarSistema
+	 */
 	public static void main(String[] args) throws IOException {
 		//clientes.txt
 		String[] Nombres = new String[100];
@@ -9,13 +29,19 @@ public class App {
 		String[] Ruts = new String[100];
 		String[] Claves = new String[100];
 		double[] Saldos = new double[100];
+		
+		
+		String[] rut_info = new String[100];
 		int[] c_Entradas = new int[100];
 		String[] asientos = new String[100];
-		// para guardar las entradas de la persna String[] Entradas = new String[100];
-		//status.txt
+		String[] peli_info = new String[100];
+		String[] horario_info = new String[100];
+		
+		//Listas status.txt
 		String[] Ruts1 = new String[100];
 		String[] Estado = new String[100];
-		//Listas y matriz peliculas.txt
+		
+		//Listas peliculas.txt
 		String[] Nombres_peli = new String[100];
 		String[] Tipos = new String[100];
 		double[] Recaudaciones = new double[100];
@@ -29,18 +55,14 @@ public class App {
 		salas[1][0]= "M\t";
 		salas[2][0]="T\t";
 		
-		//Recaudaciones Agregada Diego 29/9
 		int [] Dia_R = new int[100];
 		int [] Mañana_R = new int[100];
 		int [] Tarde_R = new int [100];
-		
-
 		
 		int cantClientes = leerClientes(Nombres, Apellidos, Ruts, Claves, Saldos, c_Entradas, asientos);
 		int cantStatus = LeerStatus(Ruts1, Estado);
 		int cantPeliculas = LeerPeliculas(Nombres_peli, Tipos, Recaudaciones, salas, infoPeliculas);
 		
-		 //Matrices salas de cine (mañana y tarde), filas A-D 20 asientos (1-5 y 26-30 sin asientos), filas E-J 30 asientos
         String [][] Sala1M = new String [11][31];
         String [][] Sala1T = new String [11][31];
         String [][] Sala2M = new String [11][31];
@@ -55,8 +77,8 @@ public class App {
         rellenarMatriz(Sala3M);
         rellenarMatriz(Sala3T);
         
-        //Comienzo de datos
         String res="";
+        int contador=0;
         while(!res.equals("3")) {
         	System.out.println("Bienvenidos al Cine de Cuevana");
         	System.out.print("Ingrese su Rut: ");
@@ -66,45 +88,74 @@ public class App {
         	
         	
         	if(rut.equals("ADMIN") && clave.equals("ADMIN")) {
-        		//Agregada Diego 29/9
         		res = MenuAdmin(Nombres, Apellidos, Ruts, Claves, Saldos,Ruts1,
         				Estado,Nombres_peli,Tipos,Recaudaciones,infoPeliculas, salas, 
         				Sala1M, Sala2M, Sala3M, Sala1T, Sala2T,Sala3T, cantPeliculas, c_Entradas, asientos, rut, cantClientes
-        				,Dia_R,Mañana_R,Tarde_R);
-        		break;
+        				,Dia_R,Mañana_R,Tarde_R, rut_info,peli_info,horario_info,contador);
         	}else {
         		rut = convertirRut(rut);
         		if(verificarCliente(rut, cantClientes, Ruts, clave, Claves) == true){
-        			res = MenuUsuario(Nombres, Apellidos, Ruts, Claves, Saldos,Ruts1,Estado,Nombres_peli,Tipos,
-        					Recaudaciones,infoPeliculas, salas, Sala1M, Sala2M, 
-        					Sala3M, Sala1T, Sala2T,Sala3T, cantPeliculas, c_Entradas, asientos, rut, cantClientes,Dia_R,Mañana_R,Tarde_R);
+        			res = MenuUsuario(Nombres, Apellidos, Ruts, Claves, Saldos,Ruts1,Estado,Nombres_peli,Tipos,Recaudaciones,infoPeliculas, salas, Sala1M, Sala2M, Sala3M, Sala1T, Sala2T,Sala3T, cantPeliculas, c_Entradas, asientos, rut, cantClientes, rut_info, peli_info, contador, horario_info, Dia_R, Mañana_R, Tarde_R);
         		}else {
         			System.out.print("No se encontro el rut o la contraseña era incorrecta. \nDesea volver a intentarlo (1), Registrarse (2) o Cerrar(3): ");
         			res = scan.next();
         			if(res.equals("1")) {
         				res="1";
         			}else if(res.equals("2")){
-        				//registrarse
+        				registrarse(Nombres,Apellidos,Ruts,Claves,Saldos,cantClientes,Ruts1,Estado,cantStatus);
         				break;
         			}else if(res.equals("3")){
+        				CerrarSistema(Nombres, Apellidos, Ruts, Claves, Saldos, cantClientes, Ruts1, Estado, cantStatus, cantPeliculas, Nombres_peli, Tipos, Recaudaciones, infoPeliculas);
         				res="3";
-        				//cerrar sistema
+        			
         			}else {
-        				System.out.print("Se ingreso un rato erroneo");
+        				System.out.print("Se ingreso un dato erroneo");
         			}
         		}
         	}
         }
 	}
-	//AGREGAR 
+	/**
+	 * Function of the Admin Menu, has 2 functions Taquilla and infoCliente
+	 * @param Nombres
+	 * @param Apellidos
+	 * @param Ruts
+	 * @param Claves
+	 * @param Saldos
+	 * @param Ruts1
+	 * @param Estado
+	 * @param Nombres_peli
+	 * @param Tipos
+	 * @param Recaudaciones
+	 * @param infoPeliculas
+	 * @param salas
+	 * @param Sala1M
+	 * @param Sala2M
+	 * @param Sala3M
+	 * @param Sala1T
+	 * @param Sala2T
+	 * @param Sala3T
+	 * @param cantPeliculas
+	 * @param c_Entradas
+	 * @param asientos
+	 * @param rut
+	 * @param cantClientes
+	 * @param Dia_R
+	 * @param Mañana_R
+	 * @param Tarde_R
+	 * @param rut_info
+	 * @param peli_info
+	 * @param horario_info
+	 * @param contador
+	 * @return
+	 */
 	private static String MenuAdmin(String[] Nombres, String[] Apellidos, String[] Ruts, String[] Claves,
 			double[] Saldos, String[] Ruts1, String[] Estado, String[] Nombres_peli, String[] Tipos,
 			double[] Recaudaciones, String[] infoPeliculas, String[][] salas, String[][] Sala1M, String[][] Sala2M,
 			String[][] Sala3M, String[][] Sala1T, String[][] Sala2T, String[][] Sala3T, int cantPeliculas,
-			int[] c_Entradas, String[] asientos, String rut, int cantClientes, int[] Dia_R, int[] Mañana_R, int[] Tarde_R) {
+			int[] c_Entradas, String[] asientos, String rut, int cantClientes, int[] Dia_R, int[] Mañana_R, int[] Tarde_R, String[] rut_info, String[] peli_info, String[] horario_info, int contador) {
 		Scanner sca = new Scanner(System.in);
 		String res ="";
-		int cant = 0;
 		System.out.println("Bienvenido al menu de Admin, escoja una opcion: ");
 		while(!res.equals("2") && !res.equals("3")) {
 			System.out.println("A)Taquilla \nB)Informacion Cliente");
@@ -114,20 +165,52 @@ public class App {
         				Estado,Nombres_peli,Tipos,Recaudaciones,infoPeliculas, salas, 
         				Sala1M, Sala2M, Sala3M, Sala1T, Sala2T,Sala3T, cantPeliculas, c_Entradas, asientos, rut, cantClientes
         				,Dia_R,Mañana_R,Tarde_R));
+				System.out.println("Desea realizar otra opcion (1) o salir (2) o cerrar(3)");
+				res=scan.next();
+				return res;
 				
 			}else if (res1.equals("B")) {
-				
+				System.out.println("Ingrese el rut del cliente: ");	
+				String rut2 = scan.next();
+				rut2= convertirRut(rut2);
+				res = infoCliente(rut2, rut_info, peli_info, horario_info, c_Entradas, asientos, Ruts, Nombres, Apellidos, cantClientes, contador, Saldos);
 			}else {
 				System.out.println("No se eligio una opcion correcta");	
 			}
 			
 		}
-		
-		
-		
 		return res;
 	}
-	//MENU ADMIN A 
+	/**
+	 * Displays the name of the movie, total income, the income for the day, the income in the morning and the afternoon
+	 * @param Nombres
+	 * @param Apellidos
+	 * @param Ruts
+	 * @param Claves
+	 * @param Saldos
+	 * @param Ruts1
+	 * @param Estado
+	 * @param Nombres_peli
+	 * @param Tipos
+	 * @param Recaudaciones
+	 * @param infoPeliculas
+	 * @param salas
+	 * @param Sala1M
+	 * @param Sala2M
+	 * @param Sala3M
+	 * @param Sala1T
+	 * @param Sala2T
+	 * @param Sala3T
+	 * @param cantPeliculas
+	 * @param c_Entradas
+	 * @param asientos
+	 * @param rut
+	 * @param cantClientes
+	 * @param Dia_R
+	 * @param Mañana_R
+	 * @param Tarde_R
+	 * @return
+	 */
 	private static String Taquilla(String[] Nombres, String[] Apellidos, String[] Ruts, String[] Claves,
 			double[] Saldos, String[] Ruts1, String[] Estado, String[] Nombres_peli, String[] Tipos,
 			double[] Recaudaciones, String[] infoPeliculas, String[][] salas, String[][] Sala1M, String[][] Sala2M,
@@ -139,37 +222,202 @@ public class App {
 			res += "\nNombre de la Pelicula: "+Nombres_peli[i]+"\n -Monto Recaudado Total: "+Recaudaciones[i]+
 					"\n -Monto Recaudado en el Dia: "+ Dia_R[i]+"\n -Monto Recaudado en la Mañana:"+Mañana_R[i]+
 					"\n -Monto Recaudado en la Tarde: "+Tarde_R[i] +"\n";
-			
-			
-		}
+		}	
 		return res;
 	}
-	//Agregar int[] Dia_R, int[] Mañana_R, int[] Tarde_R
+	/**
+	 * Ends the program and updates the information if there is any changes
+	 * @param Nombres
+	 * @param Apellidos
+	 * @param Ruts
+	 * @param Claves
+	 * @param Saldos
+	 * @param cantClientes
+	 * @param Ruts1
+	 * @param Estado
+	 * @param cantStatus
+	 * @param cantPeliculas
+	 * @param Nombres_peli
+	 * @param Tipos
+	 * @param Recaudaciones
+	 * @param infoPeliculas
+	 * @throws IOException
+	 */
+	private static void CerrarSistema(String[] Nombres, String[] Apellidos, String[] Ruts, String[] Claves,
+			double[] Saldos, int cantClientes, String[] Ruts1, String[] Estado, int cantStatus, int cantPeliculas,
+			String[] Nombres_peli, String[] Tipos, double[] Recaudaciones, String[] infoPeliculas) throws IOException {
+		
+		
+		BufferedReader arch_C = new BufferedReader(new FileReader("clientes.txt"));
+		BufferedWriter arch_CS = new BufferedWriter(new FileWriter("clientes.txt"));
+		PrintWriter pw = new PrintWriter(arch_CS);
+		
+		String linea_C;
+		String [] saldos = new String[100];
+		while((linea_C = arch_C.readLine()) != null) {
+			String[] parte = linea_C.split(",");
+			for(int i = 0; i<=cantClientes;i++) {
+				Nombres[i]=parte[0];
+				Apellidos[i]=parte[1];
+				Ruts[i]=parte[2];
+				Claves[i]=parte[3]; 
+				saldos[i] = String.valueOf(Saldos[i]);
+				saldos[i] = parte[4];
+				pw.write(Nombres[i]+","+Apellidos[i]+","+Ruts[i]+","+Claves[i]+","+saldos[i]+"\n");
+				
+			}
+			
+		}arch_C.close();
+			arch_CS.close();
+		
+		BufferedReader arch_S =new BufferedReader(new FileReader("status.txt"));
+		BufferedWriter arch_SS = new BufferedWriter(new FileWriter("status.txt"));
+		String linea_S;
+		while((linea_S = arch_S.readLine()) != null) {
+			String[] parte = linea_S.split(",");
+			for(int i = 0; i<=cantStatus;i++) {
+				parte[0]=Ruts1[i];
+				parte[1]=Estado[i];	
+			}
+			
+		}
+		arch_S.close();
+			arch_SS.close();
+		
+		BufferedReader arch_P =new BufferedReader(new FileReader("peliculas.txt"));
+		BufferedWriter arch_PS = new BufferedWriter(new FileWriter("peliculas.txt"));
+		String linea_P;
+		String [] Reca = new String[100];
+		while((linea_P = arch_P.readLine()) != null) {
+			String[] parte = linea_P.split(",");
+			for(int i = 0; i<=cantPeliculas;i++) {
+				Nombres_peli[i] = parte[0];
+				Tipos[i] = parte[1];
+				Reca[i] = String.valueOf(Recaudaciones[i]);
+				Reca[i] = parte[2];
+				infoPeliculas[i] = parte[3];
+				arch_PS.write(Nombres_peli[i]+","+Tipos[i]+","+Reca[i]+","+infoPeliculas[i]+"\n");	
+			}
+			
+		}arch_P.close();
+			arch_PS.close();
+		
+	}
+	/**
+	 * Adds the new client to the registry
+	 * @param Nombres
+	 * @param Apellidos
+	 * @param Ruts
+	 * @param Claves
+	 * @param Saldos
+	 * @param cantClientes
+	 * @param Ruts1
+	 * @param Estado
+	 * @param cantStatus
+	 */
+	private static void registrarse(String[] Nombres, String[] Apellidos, String[] Ruts, String[] Claves,
+			double[] Saldos,int cantClientes, String[] Ruts1, String[] Estado,int cantStatus) {
+		Scanner sca = new Scanner (System.in);
+		System.out.println("Sistema de registro. \nIngrese su Nombre: ");
+		String Nombre_R= sca.next();
+		System.out.println("Ingrese su Apellido: ");
+		String Apellido_R=sca.next();
+		System.out.println("Ingrese su Rut: ");
+		String Rut_R = convertirRut(sca.next());
+		System.out.println("Ingrese su Clave: ");
+		String Clave_R=sca.next();
+		boolean res =verificarCliente(Rut_R, cantClientes, Ruts, Clave_R, Claves);
+		System.out.println("Posee el pase Movilidad(Si o No): ");
+		String pase_r=sca.next();
+		while(!pase_r.equals("Si")&&!pase_r.equals("No")) {
+			System.out.println("Error.\nEscriba Si o No: ");
+			pase_r=sca.next();
+		}
+		if (res == false) {
+			for (int i =0;i<=cantClientes+1;i++) {
+				if(Ruts[i]==null) {
+					Nombres[i]=Nombre_R;
+					Apellidos[i]=Apellido_R;
+					Ruts[i]=Rut_R;
+					Claves[i]=Clave_R;
+					cantClientes++;
+					if(pase_r.equals("Si")) {
+						Estado[i]="HABILITADO";
+						Ruts1[i]=Rut_R;
+						cantStatus++;
+					}
+					else {
+						Estado[i]="NO HABILITADO";
+						Ruts1[i]=Rut_R;
+						cantStatus++;
+					}
+					break;
+				}
+			}
+		}	
+	}
+	/**
+	 * Client Menu. 
+	 * Ask the necessary information to enter the functions
+	 * Has the next functions:
+	 * -ConvertirRut
+	 * -VerificarCliente
+	 * -Registrarse
+	 * -ImprimirMatriz
+	 * -ComprarEntrada
+	 * -InfoUsuario
+	 * -Devolucion
+	 * @param nombres
+	 * @param apellidos
+	 * @param ruts
+	 * @param claves
+	 * @param saldos
+	 * @param ruts1
+	 * @param estado
+	 * @param nombres_peli
+	 * @param tipos
+	 * @param recaudaciones
+	 * @param infoPeliculas
+	 * @param salas
+	 * @param sala1m
+	 * @param sala2m
+	 * @param sala3m
+	 * @param sala1t
+	 * @param sala2t
+	 * @param sala3t
+	 * @param cantPeliculas
+	 * @param c_Entradas
+	 * @param asientos
+	 * @param rut
+	 * @param cantClientes
+	 * @param rut_info
+	 * @param peli_info
+	 * @param contador
+	 * @param horario_info
+	 * @param dia_R
+	 * @param mañana_R
+	 * @param tarde_R
+	 * @return
+	 */
 	private static String MenuUsuario(String[] nombres, String[] apellidos, String[] ruts, String[] claves,
 			double[] saldos, String[] ruts1, String[] estado, String[] nombres_peli, String[] tipos,
 			double[] recaudaciones, String[] infoPeliculas, String[][] salas, String[][] sala1m, String[][] sala2m,
-			String[][] sala3m, String[][] sala1t, String[][] sala2t, String[][] sala3t, int cantPeliculas, int[] c_Entradas,
-			String[] asientos, String rut, int cantClientes,int[] Dia_R, int[] Mañana_R, int[] Tarde_R) {
-		Scanner sca = new Scanner(System.in);
+			String[][] sala3m, String[][] sala1t, String[][] sala2t, String[][] sala3t, int cantPeliculas, int[] c_Entradas, String[] asientos, String rut, int cantClientes, String[] rut_info, String[] peli_info, int contador, String[] horario_info, int[] dia_R, int[] mañana_R, int[] tarde_R) {
 		String res="";
+		Scanner scaner = new Scanner(System.in);
 		int cant=0;
+		
 		String[][] sala= new String[11][31];
-		
-		//res 1 (volver a mostrar las opciones) res 2(salir al menu principal) res 3 cerrar sistema
-		//se repite dos veces el bienvenido
-		//revisar el comprar entradas
-		
 		System.out.println("Bienvenido al Menu de Usuario, escoja la opcion:");
 		while(!res.equals("2") && !res.equals("3")) {
 			System.out.println("A)Comprar entrada \nB)Informacion Usuario \nC)Devolucion entrada \nD)Cartelera");
 			String res1 = scan.next().toUpperCase();
-			
 			if(res1.equals("A")) {
 				for(int k=0;k<cantPeliculas;k++) {
 					System.out.println("Pelicula "+nombres_peli[k]);
 				}
 				System.out.println("Ingrese el nombre de la pelicula: ");
-				String n_pelicula = sca.nextLine(); //error aquiiiii
+				String n_pelicula = scaner.nextLine();
 				for(int i=0; i<cantPeliculas;i++) {
 					if(nombres_peli[i].equals(n_pelicula)) {
 						System.out.println("Numero de Sala y Horario para la pelicula "+n_pelicula);
@@ -187,43 +435,91 @@ public class App {
 							}
 						}
 						System.out.print("Eliga la funcion: ");
-						String res2=scan.next();
+						String res2 =scan.next();
 						if(res2.equals("1M")) {
 							imprimirMatriz(sala1m,11,31);
-							res = comprarEntrada(sala1m, c_Entradas, asientos, nombres_peli, recaudaciones, rut, 
-									estado,saldos, ruts,n_pelicula, tipos, cantPeliculas, cantClientes,Dia_R,Mañana_R,Tarde_R,res2);
+							res = comprarEntrada(sala1m, c_Entradas, asientos, nombres_peli, recaudaciones, rut, estado,saldos, ruts,n_pelicula, tipos, cantPeliculas, cantClientes, contador, dia_R,mañana_R,tarde_R,res2);
 						}else if(res2.equals("1T")) {
 							imprimirMatriz(sala1t,11,31);
-							res = comprarEntrada(sala1t, c_Entradas, asientos, nombres_peli, recaudaciones, rut, 
-									estado,saldos, ruts,n_pelicula, tipos, cantPeliculas, cantClientes,Dia_R,Mañana_R,Tarde_R,res2);
+							res = comprarEntrada(sala1t, c_Entradas, asientos, nombres_peli, recaudaciones, rut, estado,saldos, ruts,n_pelicula, tipos, cantPeliculas, cantClientes, contador, tarde_R, tarde_R, tarde_R, res2);
 						}else if(res2.equals("2M")) {
 							imprimirMatriz(sala2m,11,31);
-							res = comprarEntrada(sala2m, c_Entradas, asientos, nombres_peli, recaudaciones, rut, 
-									estado,saldos, ruts,n_pelicula, tipos, cantPeliculas, cantClientes,Dia_R,Mañana_R,Tarde_R,res2);
+							res = comprarEntrada(sala2m, c_Entradas, asientos, nombres_peli, recaudaciones, rut, estado,saldos, ruts,n_pelicula, tipos, cantPeliculas, cantClientes, contador, tarde_R, tarde_R, tarde_R, res2);
 						}else if(res2.equals("2T")) {
 							imprimirMatriz(sala2t,11,31);
-							res = comprarEntrada(sala2t, c_Entradas, asientos, nombres_peli, recaudaciones, rut, 
-									estado,saldos, ruts,n_pelicula, tipos, cantPeliculas, cantClientes,Dia_R,Mañana_R,Tarde_R,res2);
+							res = comprarEntrada(sala2t, c_Entradas, asientos, nombres_peli, recaudaciones, rut, estado,saldos, ruts,n_pelicula, tipos, cantPeliculas, cantClientes, contador, tarde_R, tarde_R, tarde_R, res2);
 						}else if(res2.equals("3M")) {
 							imprimirMatriz(sala3m,11,31);
-							res = comprarEntrada(sala3m, c_Entradas, asientos, nombres_peli, recaudaciones, rut, 
-									estado,saldos, ruts,n_pelicula, tipos, cantPeliculas, cantClientes,Dia_R,Mañana_R,Tarde_R,res2);
+							res = comprarEntrada(sala3m, c_Entradas, asientos, nombres_peli, recaudaciones, rut, estado,saldos, ruts,n_pelicula, tipos, cantPeliculas, cantClientes, contador, tarde_R, tarde_R, tarde_R, res2);
 						}else if(res2.equals("3T")) {
 							imprimirMatriz(sala3t,11,31);
-							res = comprarEntrada(sala3t, c_Entradas, asientos, nombres_peli, recaudaciones, rut, 
-									estado,saldos, ruts,n_pelicula, tipos, cantPeliculas, cantClientes,Dia_R,Mañana_R,Tarde_R,res2);
+							res = comprarEntrada(sala3t, c_Entradas, asientos, nombres_peli, recaudaciones, rut, estado,saldos, ruts,n_pelicula, tipos, cantPeliculas, cantClientes, contador, tarde_R, tarde_R, tarde_R, res2);
 						}else {
 							System.out.println("No se eligio una opcion valida");
 						}
+						rut_info[contador] = rut;
+						peli_info[contador] = n_pelicula;
+						horario_info[contador] = res2;
+						contador++;
 					}
 				}
 				
+				
+				
 			}else if(res1.equals("B")) {
-				break;
-				
+				res = infoCliente(rut, rut_info, peli_info, horario_info, c_Entradas, asientos, ruts, nombres, apellidos, cantClientes, contador, saldos);
 			}else if(res1.equals("C")) {
-				break;
-				
+				System.out.println("No se puede devolver por hoy (leer comentarios)");
+				//solo faltó eliminar las entradas y restar o sumar las cantidades de dinero que deben ser reembolsados.
+				/*int posi =0;
+				for(int i=0; i<contador;i++) {
+					if(rut_info[i].equals(rut)) {
+						System.out.println("Nombre de la pelicula: "+ peli_info[i]+"\nHorario: "+horario_info[i]+"\nAsientos: ");
+						String[] parte = asientos[i].split(",");
+						posi=i;
+						for(int j=0;j<c_Entradas[i];j++) {
+							String resul = parte[j].replaceAll("\\s+", "");  
+							System.out.println(resul);
+						}
+						System.out.print("Escriba el nombre de la pelicula: ");
+						String nombre_p = scaner.nextLine();
+						if(!peli_info[posi].equals(nombre_p)) {
+							System.out.print("Se produjo un error en ingresar los datos");
+						}else {
+							System.out.print("Escriba el horario de la pelicula: ");
+							String horario = scan.next();
+							if(!horario_info[posi].equals(horario)){
+							System.out.print("Se produjo un error en ingresar los datos");
+							}else {
+								System.out.print("Escriba la cantidad de entradas a reembolsar: ");
+								int cant_reembolso = scan.nextInt();
+								if(c_Entradas[posi] < cant_reembolso){
+									System.out.print("Se produjo un error en ingresar los datos");
+								}else {
+									if(horario.equals("1M")) {
+										imprimirMatriz(sala1m,11,31);
+										res = devolucion(cant_reembolso, sala1m, recaudaciones, rut, ruts,saldos, cantPeliculas, cantClientes, contador, rut_info, peli_info, horario_info, c_Entradas, asientos, posi);
+									}if(horario.equals("1T")) {
+										imprimirMatriz(sala1t,11,31);
+										
+									}if(horario.equals("2M")) {
+										imprimirMatriz(sala2m,11,31);
+										
+									}if(horario.equals("2T")) {
+										imprimirMatriz(sala2t,11,31);
+										
+									}if(horario.equals("3M")) {
+										imprimirMatriz(sala3m,11,31);
+										
+									}if(horario.equals("3T")) {
+										imprimirMatriz(sala3t,11,31);
+									}	
+								}
+							}
+						}
+					}
+				}
+			*/
 			}else if(res1.equals("D")) {
 				for(int i=0; i<cantPeliculas;i++) {
 						System.out.println("Numero de Sala y Horario para la pelicula "+nombres_peli[i]+": ");
@@ -241,26 +537,147 @@ public class App {
 							}
 						}
 				}
-				//puede ser una funcion
-
 				System.out.println("Desea realizar otra opcion (1) o salir (2) o cerrar(3)");
 				res=scan.next();
 			}else {
-				System.out.println("No se eligio una opcion correcta");				
+				System.out.println("No se eligio una opcion correcta");
+				
 			}
 		}
 		return res;
 	}
-	//AGREGAR int[] Dia_R, int[] Mañana_R, int[] Tarde_R
-	private static String comprarEntrada(String[][] sala, int[] c_Entradas, String[] asientos, 
-			String[] nombres_peli, double[] recaudaciones, String rut, String[] estado, 
-			double[] saldos, String[] ruts, String n_pelicula, String[] tipos, int cantPeliculas, 
-			int cantClientes,int[] Dia_R, int[] Mañana_R, int[] Tarde_R, String res2) {
+	/*private static String devolucion(int cant_reembolso, String[][] sala, double[] recaudaciones, String rut,
+			String[] ruts, double[] saldos, int cantPeliculas, int cantClientes, int contador, String[] rut_info,
+			String[] peli_info, String[] horario_info, int[] c_Entradas, String[] asientos, int posi) {
+		String res="";
+		int cant = cant_reembolso;
+		for(int k=0;k<cant_reembolso;k++) {
+			System.out.println("Escoga la fila (Horizontal) : ");
+			String fila = scan.next().toUpperCase()+"\t";
+			
+			System.out.println("Escoga la columna (Vertical) : ");
+			String columna = scan.next()+"\t";
+			
+			int n_fila=0;
+			int n_columna=0;
+			for(int i=0; i<11;i++) {
+				if(sala[i][0].equals(fila)) {
+					
+					n_fila=i;
+				}
+			}
+			for(int j=0;j<31;j++) {
+				if(sala[0][j].equals(columna)) {
+					n_columna=j;
+				}
+			}
+			if(n_columna == 0 || n_fila==0 ) {
+				System.out.println("No se encontro el asiento, escoja otro.");
+				cant_reembolso++;
+			}else {
+				sala[n_fila][n_columna] = "O\t";
+				if(n_columna == 1) {
+					sala[n_fila][n_columna+1] = "O\t";
+				}else if(n_columna == 30) {
+					sala[n_fila][n_columna-1] = "O\t";
+				}else {
+					sala[n_fila][n_columna+1] = "O\t";
+					sala[n_fila][n_columna-1] = "O\t";
+				}
+				if(cant == c_Entradas[posi]) {
+					for(int i=posi;i<contador-1;i--) {
+						rut_info[i] = rut_info[i+1];
+						c_Entradas[i] = c_Entradas[i+1];
+						asientos[i] = asientos[i+1];
+						peli_info[i] = peli_info[i+1];
+						horario_info[i] = horario_info[i+1];
+					}
+					contador--;
+				}else {
+					
+				}
+			}
+			
+			
+		}
+		return res;
+	}
+	*/
+	/**
+	 * Ask for the rut of a client and displays his information plus the movie tickets, name of the movie, schedule and seats
+	 * @param rut
+	 * @param rut_info
+	 * @param peli_info
+	 * @param horario_info
+	 * @param c_Entradas
+	 * @param asientos
+	 * @param ruts
+	 * @param nombres
+	 * @param apellidos
+	 * @param cantClientes
+	 * @param contador
+	 * @param saldos
+	 * @return
+	 */
+	private static String infoCliente(String rut, String[] rut_info, String[] peli_info, String[] horario_info,
+			int[] c_Entradas, String[] asientos, String[] ruts, String[] nombres, String[] apellidos, int cantClientes, int contador, double[] saldos) {
+		String res="";
+		for(int i=0; i<cantClientes;i++) {
+			if(ruts[i].equals(rut)) {
+				System.out.println("Rut: "+ruts[i]+"\nNombre: "+nombres[i]+"\nApellido: "+apellidos[i]+"\nSaldo: "+ saldos[i]);
+				if(contador == 0) {
+					System.out.println("No se registraron compras");
+				}
+				for(int k=0;k<contador;k++) {
+					if(rut_info[k].equals(rut)) {
+						System.out.println("\nPelicula: "+peli_info[k]+"\nHorario: "+horario_info[k]+"\nAsiento/s: ");
+						String[] parte = asientos[k].split(",");
+						for(int j=0;j<c_Entradas[k];j++) {
+							String resul = parte[j].replaceAll("\\s+", "");  
+							System.out.println(resul);
+						}
+					}if(k==contador) {
+						System.out.println("No se registraron compras");
+					}
+				}
+			}if(i==cantClientes) {
+				System.out.println("No se encontro el rut");
+			}
+		}
+		System.out.println("Desea realizar otra opcion (1) o salir (2) o cerrar(3)");
+		res=scan.next();
+		return res;
+	}
+	/**
+	 * Buy tickets for the chosen movie and time, ask for the number of tickets, as well as rows and columns. 
+	 * Calculates the value of the tickets 
+	 * (with mobility pass or not) and change the available seats with social distance.
+	 * @param sala
+	 * @param c_Entradas
+	 * @param asientos
+	 * @param nombres_peli
+	 * @param recaudaciones
+	 * @param rut
+	 * @param estado
+	 * @param saldos
+	 * @param ruts
+	 * @param n_pelicula
+	 * @param tipos
+	 * @param cantPeliculas
+	 * @param cantClientes
+	 * @param contador
+	 * @param dia_R
+	 * @param mañana_R
+	 * @param tarde_R
+	 * @param res2
+	 * @return
+	 */
+	private static String comprarEntrada(String[][] sala, int[] c_Entradas, String[] asientos, String[] nombres_peli, double[] recaudaciones, String rut, String[] estado, double[] saldos, String[] ruts, String n_pelicula, String[] tipos, int cantPeliculas, int cantClientes, int contador, int[] dia_R, int[] mañana_R, int[] tarde_R, String res2) {
 		System.out.print("Cuantas entradas va a desear: ");
 		int cantEntradas = scan.nextInt();
 		int cant = cantEntradas;
 		double gasto=0;
-		//VERIFICAR LAS FILAS Y COLUMNAS COMPRE 3 HORIZONTAL Y 1 VERTICAL
+		String texto="";
 		for(int k=0;k<cantEntradas;k++) {
 			System.out.println("Escoga la fila (Horizontal) : ");
 			String fila = scan.next().toUpperCase()+"\t";
@@ -281,8 +698,8 @@ public class App {
 					n_columna=j;
 				}
 			}
-			//sala[n_fila][n_columna] = "X\t";
-			if(n_columna == 0 && n_fila==0) {
+			
+			if(n_columna == 0 || n_fila==0) {
 				System.out.println("No se encontro el asiento, escoja otro.");
 				cantEntradas++;
 			}else if(sala[n_fila][n_columna].equals("-\t") || sala[n_fila][n_columna].equals("X\t")) {
@@ -298,6 +715,7 @@ public class App {
 					sala[n_fila][n_columna+1] = "-\t";
 					sala[n_fila][n_columna-1] = "-\t";
 				}
+				texto+=fila+columna+",";
 				
 			}
 		}
@@ -315,7 +733,6 @@ public class App {
 		int pos = 0;
 		for(int i=0; i<cantClientes;i++) {
 			if(ruts[i].equals(rut)) {
-				c_Entradas[i] +=cant;
 				pos=i;
 				if(estado[i].equals("HABILITADO")) {
 					gasto = (gasto*85)/100;
@@ -324,7 +741,6 @@ public class App {
 		}
 		
 		String res="";
-		//AGREGAR A LAS LISTAS DIA_R,MAÑANA Y TARDE EL GASTO
 		while(!res.equals("1") && !res.equals("2")) {
 			System.out.println("El total de la compra es $"+gasto);
 			System.out.print("Desea confirmar la compra(1) o volver(2): ");
@@ -333,16 +749,14 @@ public class App {
 				if(saldos[pos] > gasto) {
 					saldos[pos] -=gasto;
 					recaudaciones[posP] +=gasto;
-					Dia_R[posP]+=gasto;
+					dia_R[posP]+=gasto;
 					String horario = res2.substring(1);
 					System.out.println(horario);
 					if(horario.equals("M")){
-						Mañana_R[posP]+=gasto;
+						mañana_R[posP]+=gasto;
 					}else {
-						Tarde_R[posP]+=gasto;
+						tarde_R[posP]+=gasto;
 					}
-					
-					//sumar a la sala
 				}else {
 					System.out.print("No tiene saldo suficiente\nIngrese el saldo que desee recargar: ");
 					double agregado = scan.nextDouble();
@@ -353,8 +767,20 @@ public class App {
 		}
 		System.out.println("Desea realizar otra opcion (1) o salir (2) o cerrar(3)");
 		res=scan.next();
+		System.out.println(cant);
+		c_Entradas[contador] = cant;
+		asientos[contador] = texto;
 		return res;
 	}
+	/**
+	 * Search in the registry if the rut and password of the client exist already
+	 * @param rut
+	 * @param cantClientes
+	 * @param Ruts
+	 * @param clave
+	 * @param Claves
+	 * @return
+	 */
 	private static boolean verificarCliente(String rut, int cantClientes, String[] Ruts, String clave, String[] Claves) {
 		for(int i=0; i<cantClientes; i++) {
 			if(Ruts[i].equals(rut) && Claves[i].equals(clave)) {
@@ -364,14 +790,21 @@ public class App {
 		return false;
 	}
 	
-
+	/**
+	 * Gives a format to the Rut
+	 * @param rut
+	 * @return
+	 */
 	private static String convertirRut(String rut) {
 		rut=rut.toUpperCase();
 		rut=rut.replace(".","");
 		rut=rut.replace("-","");
 		return rut;
-		
 	}
+	/**
+	 * Fills the container so it looks like when people selects movie tickets (shaped similary to the one shown in the Taller0 PDF).
+	 * @param sala
+	 */
 	private static void rellenarMatriz(String[][] sala) {
 		for(int i =0; i<31;i++) {
 			sala[0][i] = +i+"\t";
@@ -399,6 +832,12 @@ public class App {
 			}
 		
 		}
+	/**
+	 * Displays the container
+	 * @param sala
+	 * @param largo
+	 * @param ancho
+	 */
 	private static void imprimirMatriz(String[][] sala, int largo, int ancho) {
 		String texto = "";
 		for(int i=0; i<largo;i++) {
@@ -410,6 +849,16 @@ public class App {
 		}
 		System.out.println(" ");
 	}
+	/**
+	 * Reads peliculas.txt and adds the infomation to the containers
+	 * @param Nombres_peli
+	 * @param Tipos
+	 * @param Recaudaciones
+	 * @param salas
+	 * @param infoPeliculas
+	 * @return
+	 * @throws IOException
+	 */
 	private static int LeerPeliculas(String[] Nombres_peli, String[] Tipos, double[] Recaudaciones, String[][] salas, String[] infoPeliculas) throws IOException {
 		BufferedReader arch = new BufferedReader(new FileReader("peliculas.txt"));
 		String linea;
@@ -430,10 +879,7 @@ public class App {
 					i++;
 				}
 				infoPeliculas[cant] = texto;
-				
-				//salas[1][2] = N_peli+"\t";
-				//salas[2][1] = N_peli+"\t";
-				//salas[2][2] = N_peli+"\t";
+
 			}else if(N_peli.equals("El conjuro 3")){
 				String texto="";
 				for(int i=3; i<5;i++) {
@@ -441,7 +887,7 @@ public class App {
 					i++;
 				}
 				infoPeliculas[cant] = texto;
-				//salas[1][1] = N_peli+"\t";
+
 			}else {
 				String texto="";
 				for(int i=3; i<7;i++) {
@@ -449,17 +895,20 @@ public class App {
 					i++;
 				}
 				infoPeliculas[cant] = texto;
-				//salas[2][3] = N_peli+"\t";
-				//salas[1][3] = N_peli+"\t";
 			}
-			System.out.println(Nombres_peli[cant]);
-			System.out.println(cant);
 			cant++;
 			
 		}
 		arch.close();
 		return cant;
 	}
+	/**
+	 * Reads status.txt and adds the infomation to the containers
+	 * @param Ruts1
+	 * @param Estado
+	 * @return
+	 * @throws IOException
+	 */
 	public static int LeerStatus(String[] Ruts1, String[] Estado) throws IOException {
 		BufferedReader arch = new BufferedReader(new FileReader("status.txt"));
 		String linea;
@@ -472,14 +921,24 @@ public class App {
 			
 			Ruts1[cant] = rut;
 			Estado[cant] = estado;
-			//System.out.println(Estado[cant]);
 			cant++;
 		}
 		arch.close();
 		return cant;
 	}
 	public static Scanner scan = new Scanner(System.in);
-	
+	/**
+	 * Reads clientes.txt and adds the infomation to the containers
+	 * @param Nombres
+	 * @param Apellidos
+	 * @param Ruts
+	 * @param Claves
+	 * @param Saldos
+	 * @param c_Entradas
+	 * @param asientos
+	 * @return
+	 * @throws IOException
+	 */
 	public static int leerClientes(String[] Nombres, String[] Apellidos, String[] Ruts, String[] Claves, double[] Saldos, int[] c_Entradas, String[] asientos) throws IOException{
 		BufferedReader arch =new BufferedReader(new FileReader("clientes.txt"));
 		String linea;
@@ -500,13 +959,13 @@ public class App {
 			Saldos[cant] = saldo;
 			c_Entradas[cant] = 0;
 			asientos[cant] = "";
-			//System.out.println(Nombres[cant]);
 			cant++;	
 			
 		}
 		arch.close();
 		return cant;
 	}
+	
 }
 
 
